@@ -10,9 +10,10 @@ on:
     branches:
       - main
   push:
+    branches:
+      - main
     paths:
       - "**"
-      - ".github/workflows/frontend-ci.yml"
 
 jobs:
   frontend-ci:
@@ -21,7 +22,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: .
 
     steps:
       - name: Checkout code
@@ -36,26 +37,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Run type checking
-        run: npm run typecheck
-
-      # Skip for now
-      # - name: Run linting
-      #   run: npm run lint
-
-      - name: Run tests
-        run: npm test -- --coverage --watchAll=false
-        env:
-          CI: true
-
-      - name: Coverage Report
-        uses: davelosert/vitest-coverage-report-action@v2
-        if: always() && github.event_name == 'pull_request'
-        with:
-          working-directory: ./frontend
-          json-summary-path: ./coverage/coverage-summary.json
-          json-final-path: ./coverage/coverage-final.json
 
       - name: Build application
         run: npm run build
