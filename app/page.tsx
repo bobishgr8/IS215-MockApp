@@ -206,7 +206,7 @@ export default function FoodBankLakehouseDashboard() {
   const [series, setSeries] = useState(() => genTimeSeries(12));
   const [tables, setTables] = useState(initialTables);
   const [jobs, setJobs] = useState(initialJobs);
-  const [csvPreview, setCsvPreview] = useState({ headers: [], rows: [] });
+  const [csvPreview, setCsvPreview] = useState<{ headers: string[]; rows: Record<string, string>[] }>({ headers: [], rows: [] });
   const [query, setQuery] = useState({ donor: "", type: "", outlet: "" });
 
   // Derived
@@ -234,7 +234,7 @@ export default function FoodBankLakehouseDashboard() {
     return () => clearInterval(t);
   }, []);
 
-  function handleRunJob(id) {
+  function handleRunJob(id: string) {
     setJobs((prev) =>
       prev.map((j) =>
         j.id === id
@@ -244,20 +244,20 @@ export default function FoodBankLakehouseDashboard() {
     );
   }
 
-  function parseCsv(text) {
-    const lines = text.split(/\r?\n/).filter((l) => l.trim().length);
+  function parseCsv(text: string) {
+    const lines = text.split(/\r?\n/).filter((l: string) => l.trim().length);
     if (!lines.length) return { headers: [], rows: [] };
-    const headers = lines[0].split(",").map((h) => h.trim());
-    const rows = lines.slice(1).map((line) => {
+    const headers = lines[0].split(",").map((h: string) => h.trim());
+    const rows = lines.slice(1).map((line: string) => {
       const cols = line.split(",");
-      const row = {};
-      headers.forEach((h, i) => (row[h] = (cols[i] || "").trim()));
+      const row: Record<string, string> = {};
+      headers.forEach((h: string, i: number) => (row[h] = (cols[i] || "").trim()));
       return row;
     });
     return { headers, rows };
   }
 
-  function handleCsvUpload(file) {
+  function handleCsvUpload(file: File | null) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -376,7 +376,13 @@ export default function FoodBankLakehouseDashboard() {
   );
 }
 
-function KPI({ icon: Icon, label, value, hint, tone = "default" }) {
+function KPI({ icon: Icon, label, value, hint, tone = "default" }: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string | number;
+  hint: string;
+  tone?: "default" | "good" | "warn";
+}) {
   const toneCls =
     tone === "good"
       ? "bg-green-50 border-green-200"
@@ -403,9 +409,16 @@ function KPI({ icon: Icon, label, value, hint, tone = "default" }) {
   );
 }
 
-function Overview({ series, donorSegments, totalMeals, totalKg, donationsCount, jobs }) {
+function Overview({ series, donorSegments, totalMeals, totalKg, donationsCount, jobs }: {
+  series: Array<{ label: string; donations: number; kg: number; meals: number }>;
+  donorSegments: Array<{ name: string; donors: number; share: number }>;
+  totalMeals: number;
+  totalKg: number;
+  donationsCount: number;
+  jobs: Array<{ id: string; name: string; schedule: string; lastRun: string; status: string; runTime: number }>;
+}) {
   const jobHealth = useMemo(() => {
-    const ok = jobs.filter((j) => j.status === "success").length;
+    const ok = jobs.filter((j: { status: string }) => j.status === "success").length;
     const all = jobs.length;
     return `${ok}/${all} green`;
   }, [jobs]);
@@ -488,7 +501,12 @@ function Overview({ series, donorSegments, totalMeals, totalKg, donationsCount, 
   );
 }
 
-function HealthRow({ label, value, sub, status = "good" }) {
+function HealthRow({ label, value, sub, status = "good" }: {
+  label: string;
+  value: string;
+  sub: string;
+  status?: "good" | "warn";
+}) {
   const Icon = status === "good" ? CheckCircle2 : AlertTriangle;
   const cls = status === "good" ? "text-green-600" : "text-amber-600";
   return (
@@ -503,7 +521,14 @@ function HealthRow({ label, value, sub, status = "good" }) {
   );
 }
 
-function Datasets({ tables, onCsvUpload, csvPreview, filtered, query, setQuery }) {
+function Datasets({ tables, onCsvUpload, csvPreview, filtered, query, setQuery }: {
+  tables: Array<{ name: string; schema: string; format: string; rows: number; size: string; updatedAt: string; desc: string }>;
+  onCsvUpload: (file: File | null) => void;
+  csvPreview: { headers: string[]; rows: Record<string, string>[] };
+  filtered: Array<{ id: number; date: string; donor: string; kg: number; type: string; outlet: string }>;
+  query: { donor: string; type: string; outlet: string };
+  setQuery: React.Dispatch<React.SetStateAction<{ donor: string; type: string; outlet: string }>>;
+}) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -513,7 +538,7 @@ function Datasets({ tables, onCsvUpload, csvPreview, filtered, query, setQuery }
         </div>
         <div className="flex items-center gap-2">
           <label className="inline-flex items-center gap-2 cursor-pointer">
-            <input type="file" accept=".csv" className="hidden" onChange={(e) => onCsvUpload(e.target.files?.[0])} />
+            <input type="file" accept=".csv" className="hidden" onChange={(e) => onCsvUpload(e.target.files?.[0] || null)} />
             <Button className="rounded-xl" variant="outline"><Upload className="size-4 mr-2"/>Ingest CSV</Button>
           </label>
           <Button className="rounded-xl"><Play className="size-4 mr-2"/> Optimize</Button>
@@ -645,7 +670,7 @@ function Datasets({ tables, onCsvUpload, csvPreview, filtered, query, setQuery }
             <div className="h-72 rounded-xl border p-2">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={Object.values(
-                  filtered.reduce((acc, r) => {
+                  filtered.reduce((acc: Record<string, { type: string; kg: number }>, r) => {
                     acc[r.type] = acc[r.type] || { type: r.type, kg: 0 };
                     acc[r.type].kg += r.kg;
                     return acc;
@@ -723,7 +748,7 @@ function Pipelines() {
   );
 }
 
-function Node({ label, tone = "silver" }) {
+function Node({ label, tone = "silver" }: { label: string; tone?: "silver" | "bronze" | "gold" }) {
   const toneCls =
     tone === "bronze"
       ? "bg-amber-50 border-amber-200"
@@ -739,7 +764,10 @@ function Arrow() {
   return <div className="text-neutral-300">→</div>;
 }
 
-function Jobs({ jobs, onRun }) {
+function Jobs({ jobs, onRun }: {
+  jobs: Array<{ id: string; name: string; schedule: string; lastRun: string; status: string; runTime: number }>;
+  onRun: (id: string) => void;
+}) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -821,7 +849,7 @@ function Jobs({ jobs, onRun }) {
   );
 }
 
-function SLA({ label, value, warn = false }) {
+function SLA({ label, value, warn = false }: { label: string; value: number; warn?: boolean }) {
   return (
     <div>
       <div className="flex justify-between text-sm mb-1">
@@ -833,7 +861,11 @@ function SLA({ label, value, warn = false }) {
   );
 }
 
-function Impact({ series, totalKg, totalMeals }) {
+function Impact({ series, totalKg, totalMeals }: {
+  series: Array<{ label: string; donations: number; kg: number; meals: number }>;
+  totalKg: number;
+  totalMeals: number;
+}) {
   const recent = series.slice(-6);
   return (
     <div className="space-y-6">
