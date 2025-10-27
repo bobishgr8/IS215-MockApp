@@ -28,17 +28,39 @@ Mock MVP web application demonstrating end-to-end food rescue and redistribution
 - Total distance & CO₂ emissions
 - Food rescued (kg)
 
-## Quick Start
+## Quick Start [Frontend]
 
 ### Prerequisites
 - Node.js 18+ and npm
 
 ### Installation
-
+```
 # Install dependencies
+cd frontend
 npm i
 
-# Run development server
+# Configure environment variables
+cp .env.example .env.local
+# Edit .env.local and set:
+# - NEXT_PUBLIC_GOOGLE_MAPS_API_KEY (for map features)
+# - NEXT_PUBLIC_ADK_BACKEND_URL (default: http://localhost:8000)
 
+# Run development server
 npm run dev
 ```
+
+### Environment Variables
+
+Create a `.env.local` file with:
+
+```bash
+# Google Maps API Key (required for map features)
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your-api-key-here
+
+# ADK Backend URL (Agent Development Kit server)
+# Default: http://localhost:8000 (for local development)
+# Production: Update to your deployed ADK server URL
+NEXT_PUBLIC_ADK_BACKEND_URL=http://localhost:8000
+```
+
+**Note**: The `NEXT_PUBLIC_` prefix exposes the variable to the browser. Do not use this prefix for sensitive server-side secrets.

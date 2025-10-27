@@ -14,17 +14,51 @@ import { MatchBoard } from '@/components/MatchBoard';
 import { getUrgencyColor } from '@/lib/matching';
 import { EmptyState } from '@/components/EmptyState';
 import { Separator } from '@/components/ui/separator';
+import { getActiveNeeds, getBeneficiaryProfile, type BeneficiaryNeed, type BeneficiaryProfile } from '@/lib/mockData';
+import { toast } from 'sonner';
 
 export default function BeneficiaryPage() {
   const router = useRouter();
   const { currentUser, needs, matches } = useStore();
   const [activeTab, setActiveTab] = useState('needs');
+  const [mockNeeds, setMockNeeds] = useState<BeneficiaryNeed[]>([]);
+  const [beneficiaryProfiles, setBeneficiaryProfiles] = useState<Map<string, BeneficiaryProfile>>(new Map());
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (currentUser?.role !== 'BENEFICIARY') {
       router.push('/login');
     }
   }, [currentUser, router]);
+
+  useEffect(() => {
+    // Load mock needs data
+    async function loadData() {
+      setIsLoading(true);
+      try {
+        const needs = await getActiveNeeds();
+        setMockNeeds(needs);
+        
+        // Load beneficiary profiles for displaying organization names
+        const profileMap = new Map<string, BeneficiaryProfile>();
+        for (const need of needs) {
+          if (!profileMap.has(need.beneficiary_id)) {
+            const profile = await getBeneficiaryProfile(need.beneficiary_id);
+            if (profile) {
+              profileMap.set(need.beneficiary_id, profile);
+            }
+          }
+        }
+        setBeneficiaryProfiles(profileMap);
+      } catch (error) {
+        console.error('Failed to load needs:', error);
+        toast.error('Failed to load needs data');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadData();
+  }, []);
 
   if (currentUser?.role !== 'BENEFICIARY') {
     return null;
@@ -35,6 +69,32 @@ export default function BeneficiaryPage() {
     const need = needs.find(n => n.id === m.needId);
     return need?.beneficiaryId === currentUser.id;
   });
+
+  // Combine user's needs with all mock needs for display
+  const allNeeds = [
+    ...myNeeds.map(n => ({
+      id: n.id,
+      category: n.category,
+      min_qty: n.minQty,
+      urgency: n.urgency,
+      can_accept: n.canAccept,
+      delivery_preferred: n.deliveryPreferred,
+      address: n.address,
+      beneficiary_name: currentUser.name || currentUser.orgName || 'Your Organization',
+      isOwned: true,
+    })),
+    ...mockNeeds.map(n => ({
+      id: n.id,
+      category: n.category,
+      min_qty: n.min_qty,
+      urgency: n.urgency,
+      can_accept: n.can_accept,
+      delivery_preferred: n.delivery_preferred,
+      address: n.address,
+      beneficiary_name: beneficiaryProfiles.get(n.beneficiary_id)?.name || 'Unknown Organization',
+      isOwned: false,
+    }))
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -52,7 +112,7 @@ export default function BeneficiaryPage() {
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="needs" className="gap-2">
               <Package className="h-4 w-4" />
-              My Needs ({myNeeds.length})
+              Community Needs ({allNeeds.length})
             </TabsTrigger>
             <TabsTrigger value="match-board" className="gap-2">
               <Users className="h-4 w-4" />
@@ -61,7 +121,12 @@ export default function BeneficiaryPage() {
           </TabsList>
 
           <TabsContent value="needs" className="mt-6">
-            <NeedsTab needs={myNeeds} beneficiaryId={currentUser.id} />
+            <NeedsTab 
+              userNeeds={myNeeds} 
+              allNeeds={allNeeds}
+              beneficiaryId={currentUser.id}
+              isLoading={isLoading}
+            />
           </TabsContent>
 
           <TabsContent value="match-board" className="mt-6">
@@ -73,16 +138,26 @@ export default function BeneficiaryPage() {
   );
 }
 
-function NeedsTab({ needs, beneficiaryId }: { needs: any[]; beneficiaryId: string }) {
+function NeedsTab({ 
+  userNeeds, 
+  allNeeds, 
+  beneficiaryId,
+  isLoading 
+}: { 
+  userNeeds: any[]; 
+  allNeeds: any[];
+  beneficiaryId: string;
+  isLoading: boolean;
+}) {
   const [showForm, setShowForm] = useState(false);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-semibold">Posted Needs</h2>
+          <h2 className="text-2xl font-semibold">Community Food Needs</h2>
           <p className="text-muted-foreground text-sm">
-            Food items your organization requires
+            See what food items organizations in the community need
           </p>
         </div>
         <Button onClick={() => setShowForm(!showForm)} className="w-full sm:w-auto">
@@ -105,7 +180,45 @@ function NeedsTab({ needs, beneficiaryId }: { needs: any[]; beneficiaryId: strin
         </Card>
       )}
 
-      {needs.length === 0 ? (
+      {userNeeds.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-4">My Posted Needs ({userNeeds.length})</h3>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {userNeeds.map(need => (
+              <NeedCard key={need.id} need={{
+                ...need,
+                beneficiary_name: 'Your Organization'
+              }} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold">All Community Needs ({allNeeds.length})</h3>
+        <p className="text-sm text-muted-foreground mt-1">
+          Browse all active needs from beneficiary organizations
+        </p>
+      </div>
+
+      {isLoading ? (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3].map(i => (
+            <Card key={i} className="animate-pulse">
+              <CardHeader>
+                <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2 mt-2"></div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="h-4 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : allNeeds.length === 0 ? (
         <EmptyState
           icon={Package}
           title="No needs posted yet"
@@ -118,7 +231,7 @@ function NeedsTab({ needs, beneficiaryId }: { needs: any[]; beneficiaryId: strin
         />
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {needs.map(need => (
+          {allNeeds.map(need => (
             <NeedCard key={need.id} need={need} />
           ))}
         </div>
@@ -148,16 +261,19 @@ function NeedCard({ need }: { need: any }) {
           <div className="flex-1 min-w-0">
             <CardTitle className="text-lg">{need.category}</CardTitle>
             <CardDescription className="mt-1">
-              Min. {need.minQty} units needed
+              Min. {need.min_qty} units needed
             </CardDescription>
           </div>
           {getUrgencyBadge()}
         </div>
+        <Badge variant="outline" className="text-xs w-fit mt-2">
+          {need.beneficiary_name}
+        </Badge>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-center gap-2 text-sm font-semibold">
           <Package className="h-4 w-4 text-muted-foreground" />
-          <span>Minimum: {need.minQty} units</span>
+          <span>Minimum: {need.min_qty} units</span>
         </div>
 
         <Separator />
@@ -168,7 +284,7 @@ function NeedCard({ need }: { need: any }) {
             <div className="flex-1">
               <span className="text-muted-foreground">Can accept:</span>
               <div className="flex flex-wrap gap-1 mt-1">
-                {need.canAccept.map((storage: string) => (
+                {need.can_accept.map((storage: string) => (
                   <Badge key={storage} variant="outline" className="text-xs">
                     {storage === 'Chilled' && '❄️ '}
                     {storage === 'Frozen' && '🧊 '}
@@ -184,7 +300,7 @@ function NeedCard({ need }: { need: any }) {
             <span className="line-clamp-2">{need.address}</span>
           </div>
 
-          {need.deliveryPreferred && (
+          {need.delivery_preferred && (
             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
               ✓ Delivery Preferred
             </Badge>
