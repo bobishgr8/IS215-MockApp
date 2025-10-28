@@ -33,11 +33,14 @@ import { format } from 'date-fns';
 import { LocationPicker } from '@/components/LocationPicker';
 import { EmptyState } from '@/components/EmptyState';
 import { OfferSkeleton } from '@/components/LoadingSkeleton';
+import { getDonations, type Donation } from '@/lib/mockData';
 
 export default function DonorOffersPage() {
   const router = useRouter();
   const { currentUser, offers, createOffer } = useStore();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [mockDonations, setMockDonations] = useState<Donation[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (currentUser?.role !== 'DONOR') {
@@ -45,11 +48,62 @@ export default function DonorOffersPage() {
     }
   }, [currentUser, router]);
 
+  useEffect(() => {
+    // Load mock donations data
+    async function loadData() {
+      setIsLoading(true);
+      try {
+        const donations = await getDonations();
+        setMockDonations(donations);
+      } catch (error) {
+        console.error('Failed to load donations:', error);
+        toast.error('Failed to load donations data');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
   if (currentUser?.role !== 'DONOR') {
     return null;
   }
 
   const myOffers = offers.filter(o => o.donorId === currentUser.id);
+  
+  // Combine user's offers with mock donations for display
+  const allOffers = [
+    ...myOffers.map(o => ({
+      id: o.id,
+      title: o.title,
+      category: o.category,
+      quantity: o.quantity,
+      unit: o.unit,
+      storage: o.storage,
+      expiryDate: o.expiryDate,
+      pickupStart: o.pickupStart,
+      pickupEnd: o.pickupEnd,
+      address: o.address,
+      status: o.status,
+      donor_name: currentUser.name || currentUser.orgName || 'You',
+      isOwned: true,
+    })),
+    ...mockDonations.map(d => ({
+      id: d.id,
+      title: d.title,
+      category: d.category,
+      quantity: d.quantity,
+      unit: d.unit,
+      storage: d.storage,
+      expiryDate: d.expiry_date,
+      pickupStart: d.pickup_start,
+      pickupEnd: d.pickup_end,
+      address: d.address,
+      status: d.status,
+      donor_name: d.donor_name,
+      isOwned: false,
+    }))
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -58,9 +112,9 @@ export default function DonorOffersPage() {
       <main className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">My Offers</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Food Donations</h1>
             <p className="text-muted-foreground mt-2">
-              Manage your food donation listings
+              View all available donations and manage your offers
             </p>
           </div>
           
@@ -89,10 +143,38 @@ export default function DonorOffersPage() {
           </Dialog>
         </div>
 
-        {myOffers.length === 0 ? (
+        {myOffers.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-4">My Offers ({myOffers.length})</h2>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {myOffers.map(offer => (
+                <OfferCard key={offer.id} offer={{
+                  ...offer,
+                  donor_name: currentUser.name || currentUser.orgName || 'You',
+                  isOwned: true,
+                }} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="mb-4">
+          <h2 className="text-xl font-semibold">All Available Donations ({mockDonations.length})</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Browse all food donations from the community
+          </p>
+        </div>
+
+        {isLoading ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3].map(i => (
+              <OfferSkeleton key={i} />
+            ))}
+          </div>
+        ) : mockDonations.length === 0 && myOffers.length === 0 ? (
           <EmptyState
             icon={Package}
-            title="No offers yet"
+            title="No donations available"
             description="Create your first donation offer to help the community and reduce food waste"
             action={{
               label: 'Create First Offer',
@@ -102,8 +184,22 @@ export default function DonorOffersPage() {
           />
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {myOffers.map(offer => (
-              <OfferCard key={offer.id} offer={offer} />
+            {mockDonations.map(donation => (
+              <OfferCard key={donation.id} offer={{
+                id: donation.id,
+                title: donation.title,
+                category: donation.category,
+                quantity: donation.quantity,
+                unit: donation.unit,
+                storage: donation.storage,
+                expiryDate: donation.expiry_date,
+                pickupStart: donation.pickup_start,
+                pickupEnd: donation.pickup_end,
+                address: donation.address,
+                status: donation.status,
+                donor_name: donation.donor_name,
+                isOwned: false,
+              }} />
             ))}
           </div>
         )}
@@ -164,11 +260,12 @@ function OfferCard({ offer }: { offer: any }) {
           </div>
           {getStatusBadge()}
         </div>
-        {getExpiryBadge() && (
-          <div className="pt-2">
-            {getExpiryBadge()}
-          </div>
-        )}
+        <div className="flex items-center justify-between pt-2">
+          {getExpiryBadge()}
+          <Badge variant="outline" className="text-xs ml-auto">
+            {offer.donor_name}
+          </Badge>
+        </div>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-center gap-2 text-sm font-semibold">
@@ -192,24 +289,26 @@ function OfferCard({ offer }: { offer: any }) {
           </div>
         </div>
 
-        <div className="flex gap-2 pt-2">
-          <Button 
-            size="sm" 
-            variant="outline" 
-            className="flex-1"
-            disabled={offer.status !== 'AVAILABLE'}
-          >
-            <Edit className="mr-2 h-3 w-3" />
-            Edit
-          </Button>
-          <Button 
-            size="sm" 
-            variant="ghost"
-            disabled={offer.status !== 'AVAILABLE'}
-          >
-            <Trash2 className="h-3 w-3" />
-          </Button>
-        </div>
+        {offer.isOwned && (
+          <div className="flex gap-2 pt-2">
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="flex-1"
+              disabled={offer.status !== 'AVAILABLE'}
+            >
+              <Edit className="mr-2 h-3 w-3" />
+              Edit
+            </Button>
+            <Button 
+              size="sm" 
+              variant="ghost"
+              disabled={offer.status !== 'AVAILABLE'}
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

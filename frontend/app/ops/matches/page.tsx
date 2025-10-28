@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CheckCircle, Clock, Package, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { AIMatchingButton } from '@/components/AIMatchingButton';
 
 export default function OpsMatchesPage() {
   const router = useRouter();
@@ -47,9 +48,12 @@ export default function OpsMatchesPage() {
       <TopNav />
       
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">Operations Console</h1>
-          <p className="text-gray-600 mt-1">Review and approve donation matches</p>
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Operations Console</h1>
+            <p className="text-gray-600 mt-1">Review and approve donation matches</p>
+          </div>
+          <AIMatchingButton />
         </div>
 
         <Tabs defaultValue="pending">
