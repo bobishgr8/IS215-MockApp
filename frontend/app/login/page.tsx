@@ -16,6 +16,7 @@ import {
 import { useStore } from '@/store/store';
 import { Role } from '@/lib/types';
 import { Package, Users, Truck, Settings, Heart, Shield } from 'lucide-react';
+import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 
 const DEMO_USERS = [
@@ -116,6 +117,12 @@ export default function LoginPage() {
             <Badge variant="outline" className="mt-3">
               <Shield className="mr-1 h-3 w-3" />
               Local Demo • No Real Data
+            </Badge>
+            <Badge asChild variant="outline" className="mt-3">
+              <Link href="/about">
+                <Shield className="mr-1 h-3 w-3" />
+                About us
+              </Link>
             </Badge>
           </div>
         </div>
