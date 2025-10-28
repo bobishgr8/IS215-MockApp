@@ -1,5 +1,9 @@
 from enum import StrEnum
 
+class CtxKeys(StrEnum):
+    DONATIONS = "donations"
+    BENEFICIARY_PROFILES = "beneficiary_profiles"
+    ACTIVE_NEEDS = "active_needs"
 
 class Category(StrEnum):
     PRODUCE = "Produce"

@@ -33,8 +33,7 @@
       "categories_needed": [
         "Canned",
         "Bakery",
-        "Dairy",
-        "Other"
+        "Dairy"
       ],
       "storage_capabilities": [
         "Ambient",
@@ -53,7 +52,6 @@
       },
       "categories_needed": [
         "Produce",
-        "Canned",
         "Bakery",
         "Dairy"
       ],
@@ -66,27 +64,6 @@
     },
     {
       "id": "ben-004",
-      "name": "Community Chest Senior Activity Centre",
-      "address": "11 Playfair Road, Singapore 367986",
-      "location": {
-        "lat": 1.3181,
-        "lng": 103.8428
-      },
-      "categories_needed": [
-        "Dairy",
-        "Bakery",
-        "Produce",
-        "Other"
-      ],
-      "storage_capabilities": [
-        "Ambient",
-        "Chilled"
-      ],
-      "delivery_preferred": true,
-      "weekly_capacity_kg": 150.0
-    },
-    {
-      "id": "ben-005",
       "name": "Touch Community Services",
       "address": "Blk 134 Jurong Gateway Road, #01-309N, Singapore 600134",
       "location": {
@@ -94,13 +71,10 @@
         "lng": 103.7397
       },
       "categories_needed": [
-        "Canned",
         "Frozen",
-        "Meat",
-        "Produce"
+        "Meat"
       ],
       "storage_capabilities": [
-        "Ambient",
         "Chilled",
         "Frozen"
       ],
@@ -108,46 +82,7 @@
       "weekly_capacity_kg": 350.0
     },
     {
-      "id": "ben-006",
-      "name": "Fei Yue Family Services",
-      "address": "60 Geylang Bahru, Singapore 339628",
-      "location": {
-        "lat": 1.3213,
-        "lng": 103.8715
-      },
-      "categories_needed": [
-        "Produce",
-        "Bakery",
-        "Dairy",
-        "Canned"
-      ],
-      "storage_capabilities": [
-        "Ambient"
-      ],
-      "delivery_preferred": false,
-      "weekly_capacity_kg": 200.0
-    },
-    {
-      "id": "ben-007",
-      "name": "Interfaith Community Centre",
-      "address": "570 Ang Mo Kio Avenue 3, Singapore 560570",
-      "location": {
-        "lat": 1.3557,
-        "lng": 103.8491
-      },
-      "categories_needed": [
-        "Bakery",
-        "Canned",
-        "Other"
-      ],
-      "storage_capabilities": [
-        "Ambient"
-      ],
-      "delivery_preferred": true,
-      "weekly_capacity_kg": 100.0
-    },
-    {
-      "id": "ben-008",
+      "id": "ben-005",
       "name": "New Hope Community Services",
       "address": "3 Ghim Moh Link, Singapore 270003",
       "location": {
@@ -155,14 +90,11 @@
         "lng": 103.7898
       },
       "categories_needed": [
-        "Produce",
         "Meat",
-        "Frozen",
         "Dairy"
       ],
       "storage_capabilities": [
-        "Chilled",
-        "Frozen"
+        "Chilled"
       ],
       "delivery_preferred": true,
       "weekly_capacity_kg": 280.0
@@ -202,7 +134,7 @@
     },
     {
       "id": "need-003",
-      "beneficiary_id": "ben-005",
+      "beneficiary_id": "ben-004",
       "category": "Frozen",
       "min_qty": 40.0,
       "urgency": "High",
@@ -232,7 +164,7 @@
     },
     {
       "id": "need-005",
-      "beneficiary_id": "ben-004",
+      "beneficiary_id": "ben-003",
       "category": "Bakery",
       "min_qty": 20.0,
       "urgency": "Medium",
@@ -241,85 +173,24 @@
       ],
       "delivery_preferred": true,
       "created_at": "2025-10-27T14:28:07.237557",
-      "lat": 1.3181,
-      "lng": 103.8428,
-      "address": "11 Playfair Road, Singapore 367986"
+      "lat": 1.3525,
+      "lng": 103.9445,
+      "address": "Blk 268 Tampines Street 21, #01-395, Singapore 520268"
     },
     {
       "id": "need-006",
-      "beneficiary_id": "ben-008",
+      "beneficiary_id": "ben-005",
       "category": "Meat",
       "min_qty": 35.0,
       "urgency": "Medium",
       "can_accept": [
-        "Chilled",
-        "Frozen"
+        "Chilled"
       ],
       "delivery_preferred": true,
       "created_at": "2025-10-27T16:28:07.237557",
       "lat": 1.3103,
       "lng": 103.7898,
       "address": "3 Ghim Moh Link, Singapore 270003"
-    },
-    {
-      "id": "need-007",
-      "beneficiary_id": "ben-006",
-      "category": "Produce",
-      "min_qty": 15.0,
-      "urgency": "Low",
-      "can_accept": [
-        "Ambient"
-      ],
-      "delivery_preferred": false,
-      "created_at": "2025-10-26T19:28:07.237557",
-      "lat": 1.3213,
-      "lng": 103.8715,
-      "address": "60 Geylang Bahru, Singapore 339628"
-    },
-    {
-      "id": "need-008",
-      "beneficiary_id": "ben-007",
-      "category": "Other",
-      "min_qty": 10.0,
-      "urgency": "Low",
-      "can_accept": [
-        "Ambient"
-      ],
-      "delivery_preferred": true,
-      "created_at": "2025-10-27T11:28:07.237557",
-      "lat": 1.3557,
-      "lng": 103.8491,
-      "address": "570 Ang Mo Kio Avenue 3, Singapore 560570"
-    },
-    {
-      "id": "need-009",
-      "beneficiary_id": "ben-001",
-      "category": "Canned",
-      "min_qty": 45.0,
-      "urgency": "Low",
-      "can_accept": [
-        "Ambient"
-      ],
-      "delivery_preferred": true,
-      "created_at": "2025-10-25T19:28:07.237557",
-      "lat": 1.3318,
-      "lng": 103.8847,
-      "address": "3 Lor Bakar Batu, Singapore 348742"
-    },
-    {
-      "id": "need-010",
-      "beneficiary_id": "ben-003",
-      "category": "Bakery",
-      "min_qty": 25.0,
-      "urgency": "Low",
-      "can_accept": [
-        "Ambient"
-      ],
-      "delivery_preferred": true,
-      "created_at": "2025-10-27T07:28:07.237557",
-      "lat": 1.3525,
-      "lng": 103.9445,
-      "address": "Blk 268 Tampines Street 21, #01-395, Singapore 520268"
     }
   ]
 }
