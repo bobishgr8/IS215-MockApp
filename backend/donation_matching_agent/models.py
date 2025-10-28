@@ -69,8 +69,3 @@ class MatchOutput(BaseModel):
 class MatchBatch(BaseModel):
     """Ultra-simplified batch of matches for ADK agent output - no nested objects"""
     matches: list[MatchOutput] = Field(..., description="List of matched donations to beneficiary needs")
-    # total_matches: int = Field(..., description="Total number of successful matches")
-    # timestamp: str = Field(..., description="ISO datetime when matches were generated")
-    # unmatched_donations: str = Field(..., description="Comma-separated list of donation IDs that could not be matched")
-    # unmatched_needs: str = Field(..., description="Comma-separated list of need IDs that could not be fulfilled")
-

@@ -29,7 +29,7 @@ def get_active_needs(tool_context: ToolContext) -> list[Need]:
     tool_context.state[CtxKeys.ACTIVE_NEEDS] = active_needs
     return active_needs
 
-# Agent with matching tools and ultra-simple structured output (completely flat - no nested objects)
+# Agent with matching tools and structured output
 root_agent = Agent(
     model='gemini-2.5-pro',
     name='donation_matching_agent',
