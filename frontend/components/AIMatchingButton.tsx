@@ -374,6 +374,7 @@ export function AIMatchingButton() {
       if (!matchResults || matchResults.matches.length === 0) {
         console.warn('No matches received - using fallback matches');
         setMatchResults(fallbackMatches);
+      }
     }
   };
 
