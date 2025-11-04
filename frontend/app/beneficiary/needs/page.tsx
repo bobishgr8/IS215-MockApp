@@ -77,7 +77,7 @@ export default function BeneficiaryPage() {
       category: n.category,
       min_qty: n.minQty,
       urgency: n.urgency,
-      can_accept: n.canAccept,
+      can_accept: n.canAccept || ['Ambient'],
       delivery_preferred: n.deliveryPreferred,
       address: n.address,
       beneficiary_name: currentUser.name || currentUser.orgName || 'Your Organization',
@@ -88,7 +88,7 @@ export default function BeneficiaryPage() {
       category: n.category,
       min_qty: n.min_qty,
       urgency: n.urgency,
-      can_accept: n.can_accept,
+      can_accept: n.can_accept || ['Ambient'],
       delivery_preferred: n.delivery_preferred,
       address: n.address,
       beneficiary_name: beneficiaryProfiles.get(n.beneficiary_id)?.name || 'Unknown Organization',
@@ -284,7 +284,7 @@ function NeedCard({ need }: { need: any }) {
             <div className="flex-1">
               <span className="text-muted-foreground">Can accept:</span>
               <div className="flex flex-wrap gap-1 mt-1">
-                {need.can_accept.map((storage: string) => (
+                {(need.can_accept || ['Ambient']).map((storage: string) => (
                   <Badge key={storage} variant="outline" className="text-xs">
                     {storage === 'Chilled' && '❄️ '}
                     {storage === 'Frozen' && '🧊 '}

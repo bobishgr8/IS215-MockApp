@@ -36,14 +36,14 @@ const DEMO_USERS = [
     color: 'bg-green-50 text-green-700 border-green-200',
     description: 'Receive food donations'
   },
-  { 
-    role: 'VOLUNTEER' as Role, 
-    email: 'driver@demo', 
-    name: 'Aisha', 
-    icon: Truck,
-    color: 'bg-purple-50 text-purple-700 border-purple-200',
-    description: 'Deliver food to beneficiaries'
-  },
+  // { 
+  //   role: 'VOLUNTEER' as Role, 
+  //   email: 'driver@demo', 
+  //   name: 'Aisha', 
+  //   icon: Truck,
+  //   color: 'bg-purple-50 text-purple-700 border-purple-200',
+  //   description: 'Deliver food to beneficiaries'
+  // },
   { 
     role: 'OPS' as Role, 
     email: 'ops@demo', 
