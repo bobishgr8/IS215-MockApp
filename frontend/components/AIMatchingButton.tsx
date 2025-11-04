@@ -156,11 +156,11 @@ export function AIMatchingButton() {
         setMatchResults(fallbackMatches);
         setIsRunning(false);
         setShowResults(true);
-        toast.warning('Using Cached Matches', {
-          description: 'ADK API is not responding. Showing pre-generated matches.',
-        });
+        // toast.warning('Using Cached Matches', {
+        //   description: 'ADK API is not responding. Showing pre-generated matches.',
+        // });
       }
-    }, 20000); // 20 seconds
+    }, 5000); // 5 seconds
 
     try {
       const backendUrl = process.env.NEXT_PUBLIC_ADK_BACKEND_URL || 'http://localhost:8000';
