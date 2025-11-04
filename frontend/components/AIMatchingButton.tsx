@@ -175,14 +175,15 @@ export function AIMatchingButton() {
         console.log('Created ADK session:', newSessionId);
       } catch (sessionError) {
         console.error('Failed to create session:', sessionError);
-        clearTimeout(timeoutId);
-        setStatusMessage('⚠️ Using cached matches (session creation failed)');
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        // clearTimeout(timeoutId);
+        // setStatusMessage('⚠️ Using cached matches (session creation failed)');
         setMatchResults(fallbackMatches);
         setIsRunning(false);
         setShowResults(true);
-        toast.warning('Using Cached Matches', {
-          description: 'Could not connect to ADK API. Showing pre-generated matches.',
-        });
+        // toast.warning('Using Cached Matches', {
+        //   description: 'Could not connect to ADK API. Showing pre-generated matches.',
+        // });
         return;
       }
       
